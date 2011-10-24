@@ -1,0 +1,12 @@
+<service name="UtilityService" scope="application" targetNamespace="http://stg.tu-darmstadt.de/utilityService">
+   	<description>
+        Service providing some utility functions
+    </description>
+    <messageReceivers>
+       	<messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
+                        	class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver"/>
+       	<messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
+       	                 class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/>
+   	</messageReceivers>
+   	<parameter name="ServiceClass">de.tud.stg.ao4bpel.ws.UtilityService</parameter>
+</service>

@@ -1,0 +1,66 @@
+<project name="ao4bpel-services" basedir="." default="generate.service">
+
+	<property name="service.name" value="UtilityService" />
+	<property name="dest.dir" value="build" />
+	<property name="dest.dir.classes" value="${dest.dir}/${service.name}" />
+	<property name="dest.dir.lib" value="${dest.dir}/lib" />	
+	
+	<property name="axis2.home" value="/path/to/axis2" />
+	<property name="deploy.dir" value="/path/to/axis2/WEB-INF/services/" />
+	
+	<property name="repository.path" value="${axis2.home}/repository" />
+
+	<path id="build.class.path">
+		<fileset dir="${axis2.home}/lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<path id="client.class.path">
+		<fileset dir="${axis2.home}/lib">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${dest.dir.lib}">
+			<include name="*.jar" />
+		</fileset>
+
+	</path>
+	<target name="clean">
+		<delete dir="${dest.dir}" />
+		<delete dir="src" includes="de/tud/stg/ao4bpel/ws/stub/**"/>
+	</target>
+
+	<target name="prepare">
+		<mkdir dir="${dest.dir}" />
+		<mkdir dir="${dest.dir}/lib" />
+		<mkdir dir="${dest.dir.classes}" />
+		<mkdir dir="${dest.dir.classes}/META-INF" />
+	</target>
+
+	<target name="generate.service" depends="clean,prepare">
+		
+		<copy todir="${dest.dir.classes}/META-INF">
+			<fileset dir="src/META-INF">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+		
+		<javac srcdir="src" destdir="${dest.dir.classes}" includes="de/tud/stg/ao4bpel/ws/**"
+			includeAntRuntime="no" target="1.5"
+			debug="true">
+			<classpath refid="build.class.path" />
+		</javac>
+		
+		<jar basedir="${dest.dir.classes}" destfile="${dest.dir}/${service.name}.aar" />
+
+		<copy file="${dest.dir}/${service.name}.aar" tofile="${repository.path}/services/${service.name}.aar" overwrite="true" />
+		
+	</target>
+	
+	<target name="deploy.service" depends="generate.service">
+		
+			<copy file="${dest.dir}/${service.name}.aar" todir="${deploy.dir}" overwrite="true" />
+		
+	</target>
+
+</project>

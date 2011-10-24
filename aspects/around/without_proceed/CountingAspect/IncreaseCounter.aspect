@@ -1,0 +1,131 @@
+<aspect name="increaseCounterAspect"
+	targetNamespace="http://stg.tu-darmstadt.de/ao4bpel"
+	xmlns="http://stg.tu-darmstadt.de/ao4bpel/2.0/aspect"
+	xmlns:ao4bpel="http://stg.tu-darmstadt.de/ao4bpel/2.0/aspect"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"
+	expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+
+	<ao4bpel:pointcuts>
+		<ao4bpel:pointcut name="testPointcut">
+			activity('invokeConcat').
+		</ao4bpel:pointcut>		
+	</ao4bpel:pointcuts>
+
+	<ao4bpel:advice
+		xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+		targetNamespace="http://stg.tu-darmstadt.de/ao4bpel"		
+		name="increaseCounterAdviceTwoWay"
+		xmlns:tns="http://stg.tu-darmstadt.de/ao4bpel"
+	    xmlns:counter="http://stg.tu-darmstadt.de/counterService"
+		xmlns:utility2="http://ws.ao4bpel.stg.tud.de"
+		xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+		type="around">
+				
+		<import location="CounterService.wsdl"
+			namespace="http://stg.tu-darmstadt.de/counterService"
+			importType="http://schemas.xmlsoap.org/wsdl/" />
+
+		<import location="IncreaseCounter.wsdl"
+			namespace="http://stg.tu-darmstadt.de/ao4bpel"
+			importType="http://schemas.xmlsoap.org/wsdl/" />
+
+		<partnerLinks>
+			<partnerLink name="counterServiceLink"
+				partnerLinkType="tns:CounterServiceLinkType"
+				partnerRole="counterService"
+				initializePartnerRole="yes" />			
+		</partnerLinks>
+
+		<variables>
+			<variable name="incrementRequest" messageType="counter:incrementRequest"/>
+			<variable name="incrementResponse" messageType="counter:incrementResponse" />
+		</variables>
+
+		<sequence>
+			
+			<assign name="assign0" validate="yes">
+				
+				<!--  initialize  -->
+				<copy>
+					<from>
+						<literal>
+							<counter:incrementRequest>
+								<counter:id />
+							</counter:incrementRequest>
+						</literal>
+					</from>
+					<to><![CDATA[$incrementRequest.parameters]]></to>
+				</copy>
+
+				<copy>
+					<from><![CDATA[$ThisJPActivity.xpath]]></from>
+					<to><![CDATA[$incrementRequest.parameters/counter:id]]></to>
+				</copy>
+
+				<copy>
+					<from>
+						<literal>
+							<counter:incrementResponse>
+								<counter:return></counter:return>
+							</counter:incrementResponse>
+						</literal>
+					</from>
+					<to><![CDATA[$incrementResponse.parameters]]></to>
+				</copy>
+			
+			</assign>
+
+    	    <invoke
+				name="invokeCounterTest"
+				partnerLink="counterServiceLink"
+				operation="increment"
+				inputVariable="incrementRequest"
+				outputVariable="incrementResponse"
+				/>
+
+			<assign name="assignOutput" validate="yes">
+				<copy>
+					<from>
+						<![CDATA[concat('Hello AO4BPEL World!
+This is an AO4BPEL Around-Advice whos pointcut',
+$ThisJPActivity.pointcut,
+'matched the activity "',
+$ThisJPActivity.name, '".
+The orignial request has been suppressed (no proceed)!"',
+'
+Counter increased to: "',
+$incrementResponse.parameters,
+'"
+ThisJPInVariable.parameters.string1: "',
+$ThisJPInVariable.parameters/utility2:string1,
+'"
+ThisJPInVariable.parameters.string2: "',
+$ThisJPInVariable.parameters/utility2:string2,
+'"
+ThisJPActivity.process: "',
+$ThisJPActivity.process,
+'"
+ThisJPActivity.type: "',
+$ThisJPActivity.type,
+'"
+ThisJPActivity.partnerlink: "',
+$ThisJPActivity.partnerlink,
+'"
+ThisJPActivity.porttype: "',
+$ThisJPActivity.porttype,
+'"
+ThisJPActivity.operation: "',
+$ThisJPActivity.operation,'"')]]>
+					</from>
+					<to variable="ThisJPOutVariable" part="parameters">
+						<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[utility2:return]]></query>
+					</to>
+				</copy>
+			</assign>
+		
+		</sequence>
+	
+	</ao4bpel:advice>
+
+</aspect>

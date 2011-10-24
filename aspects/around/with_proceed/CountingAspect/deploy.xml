@@ -1,0 +1,12 @@
+<deployAspect xmlns="http://www.apache.org/ode/schemas/dd/2007/03"
+	xmlns:ans="http://stg.tu-darmstadt.de/ao4bpel" 
+	xmlns:wns="http://stg.tu-darmstadt.de/ao4bpel"
+	xmlns:counter="http://stg.tu-darmstadt.de/counterService">
+
+	<aspect name="ans:increaseCounterAspect">
+		<invoke partnerLink="counterServiceLink">
+			<service name="counter:CounterService" port="CounterServiceHttpSoap11Endpoint" />
+		</invoke>
+	</aspect>
+
+</deployAspect>

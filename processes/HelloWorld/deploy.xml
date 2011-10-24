@@ -1,0 +1,20 @@
+<deploy xmlns="http://www.apache.org/ode/schemas/dd/2007/03"
+	xmlns:pns="http://stg.tu-darmstadt.de/ao4bpel" 
+	xmlns:wns="http://stg.tu-darmstadt.de/ao4bpel"
+	xmlns:utility="http://stg.tu-darmstadt.de/utilityService"
+	xmlns:counter="http://stg.tu-darmstadt.de/counterService">
+
+
+	<process name="pns:HelloWorld">
+		<active>true</active>
+		<in-memory>true</in-memory>
+		
+		<invoke partnerLink="utilityServiceLink">
+			<service name="utility:UtilityService" port="UtilityServiceHttpSoap11Endpoint" />
+		</invoke>
+				
+		<provide partnerLink="HelloPartnerLink">
+			<service name="wns:HelloService" port="HelloPort"/>
+		</provide>
+	</process>
+</deploy>
